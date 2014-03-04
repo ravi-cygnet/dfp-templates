@@ -1,0 +1,274 @@
+<script type="text/javascript" src="http://oystatic.ignimgs.com/src/core/js/external/jquery/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="http://ads.ign.com/swfobject/swfobject.js"></script>
+<script type="text/javascript">
+    swfobject.registerObject("slot_728x90", "9.0.0");
+</script>
+
+<script type="text/javascript">
+
+var creativeWidth = [%Width%];
+var creativeHeight = [%Height%];
+var bgImageUrl = jQuery.trim("[%BackgroundimageURL%]");
+var bgColor = jQuery.trim("[%Backgroundcolor%]");
+var creativeType = "[%Creativetype%]";
+var localSwfUrl = "[%LocallyhostedswfURL%]";
+var localJpgUrl = "[%LocallyhostedImageURL%]";
+var clickThroughUrl = "%%CLICK_URL_UNESC%%[%ClickthroughURL%]";
+var redirectTag = "[%RedirectTag%]";
+redirectTag = redirectTag.replace('/ad/', '/adi/');    // Replace ad with adi to process the redirect tag and not just render the backup image.
+var opacity = "[%Locallyhostedswfopacity%]";
+var impUrl1 = "[%3rdPartyImpressionURL1%]";
+var impUrl2 = "[%3rdPartyImpressionURL2%]";
+var impUrl3 = "[%3rdPartyImpressionURL3%]";
+
+var ignLBContainer = "sugarad-728x90";
+var askmenLBContainer = "ad-leaderboard";
+var gamespyLBContainer = "sugarad-728x90";
+var oneupLBContainer = "ad-728";
+var ugoLBContainer = "adTop";
+
+ignLB = jQuery('#' + ignLBContainer, window.parent.document);
+ignDetector = jQuery('.ad_placement #' + ignLBContainer, window.parent.document);
+if(!ignDetector.length) ignDetector = jQuery('.ad-placement #' + ignLBContainer, window.parent.document);
+ignLegacyDetector = jQuery('#LB_Row_Ad #' + ignLBContainer, window.parent.document);
+
+askmenLB = jQuery('#' + askmenLBContainer + ".bladeUnit", window.parent.document);
+
+gamespyLB = jQuery('#' + gamespyLBContainer, window.parent.document);
+gamespyDetector = jQuery('#ad-leaderboard #' + gamespyLBContainer, window.parent.document);
+
+oneupLB = jQuery('#' + oneupLBContainer, window.parent.document);
+
+ugoLB = jQuery('#' + ugoLBContainer, window.parent.document);
+
+//console.log('begin detection...');
+
+if (ignDetector.length) {
+    //console.log('is IGN');
+
+    ignLB.css({
+        'width' : creativeWidth,
+        'height' : 'auto'
+    });
+
+    // For Async
+    resizeIFrame(ignLBContainer, creativeWidth, creativeHeight);
+
+    ignLB_legacy = jQuery('#LB_Row', window.parent.document);
+
+    if (ignLB_legacy.length) {
+        //console.log('is IGN legacy page');
+
+        ignLB_legacy.css({
+            'width' : 972,
+            'height' : 'auto'
+        });
+
+        jQuery('#LB_Row_Box', window.parent.document).hide();
+        jQuery('#LB_Row_Ad', window.parent.document).css({
+            'width' : 972,
+            'height' : 'auto',
+            'margin-left' : 0
+        });
+    }
+
+
+} else if (askmenLB.length) {
+    //console.log('not IGN, is Askmen');
+
+    askmenLB.css({
+        'height' : 'auto'
+    });
+
+} else if (gamespyDetector.length) {
+    //console.log('not IGN, not Askmen, is Gamespy');
+
+    gamespyLB.css({
+        'width' : creativeWidth,
+        'height' : 'auto'
+    });
+
+    jQuery('#network-headlines-border', window.parent.document).css('display','none');
+
+    jQuery('#leaderboard-row', window.parent.document).css({
+        'margin' : '0',
+        'padding' : '0',
+        'height' : 'auto',
+        'text-align' : 'center'
+    });
+
+    jQuery('#ad-leaderboard', window.parent.document).css({
+        'float' : 'none',
+        'margin' : '5px auto 0 auto',
+        'display' : 'inline-block'
+    });
+
+    // For Async
+    resizeIFrame(gamespyLBContainer, creativeWidth, creativeHeight);
+
+} else if (oneupLB.length) {
+    //console.log('not IGN, not Askmen, is not Gamespy, is 1UP');
+
+    oneupLB.css({
+        'width' : creativeWidth,
+        'height' : 'auto',
+        'display' : 'inline-block',
+        'text-align' : 'center'
+    });
+
+    jQuery('#size207x90,#pinata', window.parent.document).css('display','none');
+
+    jQuery('#size728x90', window.parent.document).css({
+        'float' : 'none',
+        'padding' : '0',
+        'text-align' : 'center',
+        'background' : 'none'
+    });
+
+} else if (ugoLB.length) {
+    //console.log('not IGN, not Askmen, is not Gamespy, is not 1UP, is UGO');
+
+    ugoLB.css({
+        'padding' : '0',
+        'width' : creativeWidth,
+        'height' : 'auto',
+        'display' : 'inline-block',
+        'text-align' : 'center'
+    });
+
+    jQuery('#adWrapper', window.parent.document).css({
+        'width' : '970px',
+        'min-width' : 'none',
+        'max-width' : 'none',
+        'text-align' : 'center',
+        'margin-bottom' : '5px'
+    });
+
+} else if (ignLegacyDetector.length) {
+    //console.log('not IGN, not Askmen, is not Gamespy, is not 1UP, is not UGO, is IGN LEGACY');
+
+    ignLB.css({
+        'width' : creativeWidth,
+        'height' : 'auto'
+    });
+
+    // For Async
+    resizeIFrame(ignLBContainer, creativeWidth, creativeHeight);
+
+    ignLB_legacy = jQuery('#LB_Row', window.parent.document);
+
+    if (ignLB_legacy.length) {
+        //console.log('is IGN legacy page');
+
+        ignLB_legacy.css({
+            'width' : 972,
+            'height' : 'auto'
+        });
+
+        jQuery('#LB_Row_Box', window.parent.document).hide();
+        jQuery('#LB_Row_Ad', window.parent.document).css({
+            'text-align' : 'center',
+            'width' : 972,
+            'height' : 'auto',
+            'margin-left' : 0
+        });
+    }
+
+}
+
+
+if (bgImageUrl != '') {
+    jQuery('body', window.parent.document).css('background', 'url(' + bgImageUrl + ') top center no-repeat fixed');
+
+    if (bgColor != '') {
+        jQuery('body', window.parent.document).css('background-color', "#" + bgColor);
+    }
+}
+
+
+if(creativeType == "Locally Hosted SWF" && localSwfUrl) {
+    //console.log(creativeType);
+
+    var outputCode = generateSwfObject(creativeWidth, creativeHeight, localSwfUrl, clickThroughUrl, localJpgUrl, opacity);
+    //console.log(outputCode);
+
+    document.write(outputCode);
+} else if(creativeType == "Locally Hosted JPG" && localJpgUrl) {
+    //console.log(creativeType);
+
+    var outputCode = generateJpgLink(clickThroughUrl, localJpgUrl);
+    //console.log(outputCode);
+
+    document.write(outputCode);
+} else if(creativeType == "Redirect Tag") {
+   var redirectFrame = '<iframe src="'+redirectTag+'" width="'+creativeWidth+'" height="'+creativeHeight+'" allowtransparency="true" scrolling="no" marginwidth="0" marginheight="0" frameborder="0" vspace="0" hspace="0" style="border:0"></iframe>';
+
+    document.write(redirectFrame);
+}
+
+
+// If 3rd-Party Impression url exists, append it to the page
+if(impUrl1 != "") document.write('<i'+'mg src="'+impUrl1+'" border="0px" width="1px" height="1px" style="position:absolute;visibility:hidden;top:0px;left:0px;" />');
+
+if(impUrl2 != "") document.write('<i'+'mg src="'+impUrl2+'" border="0px" width="1px" height="1px" style="position:absolute;visibility:hidden;top:0px;left:0px;" />');
+
+if(impUrl3 != "") document.write('<i'+'mg src="'+impUrl3+'" border="0px" width="1px" height="1px" style="position:absolute;visibility:hidden;top:0px;left:0px;" />');
+
+
+
+function setFifDim(frameElement, w, h) {
+    if (typeof w == 'number' && typeof h == 'number') {
+        frameElement.style.cssText += ';width:' + w + 'px;height:' + h + 'px;';
+        frameElement.parentNode.style.cssText = ';width:' + w + 'px;height:auto;' + ((w == 0 && h == 0) ? 'display:none;' : '');
+    }
+}
+
+function resizeIFrame(lbContainerDiv, creativeWidth, creativeHeight) {
+    // Async
+    if (top != self) {
+        if (top.document.getElementById(lbContainerDiv)) {
+            fif = top.document.getElementById(lbContainerDiv).getElementsByTagName("iframe");
+            if (fif.length) {
+                setFifDim(fif[0], creativeWidth, creativeHeight); // first iframe is the main Ad iframe which spawns the second framebuster iframe (if required)
+            }
+        }
+    }
+}
+
+function generateSwfObject(creativeWidth, creativeHeight, localSwfUrl, clickThroughUrl, localJpgUrl, opacity) {
+
+    var swfobjectCode = '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="' + creativeWidth + '" height="' + creativeHeight + '" id="slot_728x90">\n';
+    swfobjectCode += '<param name="movie" value="' + localSwfUrl + '" />\n';
+    swfobjectCode += '<param name="flashvars" value="clickTag='+escape(clickThroughUrl)+'&clickTAG='+escape(clickThroughUrl)+'&clicktag='+escape(clickThroughUrl)+'" />\n';
+    swfobjectCode += '<param name="wmode" value="'+opacity+'" />\n';
+    swfobjectCode += '<param name="autostart" value="true" />\n';
+    swfobjectCode += '<param name="quality" value="autohigh" />\n';
+    swfobjectCode += '<param name="allowScriptAccess" value="always" />\n';
+    swfobjectCode += '<!--[if !IE]>-->\n';
+    swfobjectCode += '<object type="application/x-shockwave-flash" data="' + localSwfUrl + '" width="' + creativeWidth + '" height="' + creativeHeight + '">\n';
+    swfobjectCode += '<!--<![endif]-->\n';
+    swfobjectCode += '<param name="flashvars" value="clickTag='+escape(clickThroughUrl)+'&clickTAG='+escape(clickThroughUrl)+'&clicktag='+escape(clickThroughUrl)+'" />\n';
+    swfobjectCode += '<param name="wmode" value="'+opacity+'" />\n';
+    swfobjectCode += '<param name="autostart" value="true" />\n';
+    swfobjectCode += '<param name="quality" value="autohigh" />\n';
+    swfobjectCode += '<param name="allowScriptAccess" value="always" />\n';
+    swfobjectCode += generateJpgLink(clickThroughUrl,localJpgUrl);
+    swfobjectCode += '<!--[if !IE]>-->\n';
+    swfobjectCode += '</object>\n';
+    swfobjectCode += '<!--<![endif]-->\n';
+    swfobjectCode += '</object>\n';
+
+    return swfobjectCode;
+
+}
+
+function generateJpgLink(clickThroughUrl, localJpgUrl) {
+    var jpgLinkCode = '<a href="' + clickThroughUrl + '" target="_blank">\n';
+    jpgLinkCode += '<img src="' + localJpgUrl + '" border="0px" alt="" />\n';
+    jpgLinkCode += '</a>\n';
+
+    return jpgLinkCode;
+}
+</script>
+
+[%3rdpartyadtag%]

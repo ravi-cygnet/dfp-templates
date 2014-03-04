@@ -1,0 +1,97 @@
+<script type="text/javascript">
+
+adSlotSize = "[%adSlot%]";
+widthCollapse = 0;
+heightCollapse = 0;
+
+switch(adSlotSize){
+  
+  case "TOP - LEADERBOARD":
+    adSlotToCollapse = top.document.getElementById("sugarad-728x90");
+    if(adSlotToCollapse == undefined)
+      adSlotToCollapse = top.document.getElementById("ad-leaderboard");
+    break;
+    
+  case "TOP - MEDREC":
+    adSlotToCollapse = top.document.getElementById("sugarad-300x250");
+    if(adSlotToCollapse == undefined)
+      adSlotToCollapse = top.document.getElementById("ad-medrec_premium");
+    break;
+    
+  case "FEATURED - 300x100":
+    adSlotToCollapse = top.document.getElementById("sugarad-300x100");
+    if(adSlotToCollapse == undefined)
+      adSlotToCollapse = top.document.getElementById("ad-feature_unit");
+    break;
+
+  case "BOTTOM - MEDREC":
+    adSlotToCollapse = top.document.getElementById("sugarad-side300x250");
+    if(adSlotToCollapse == undefined)
+      adSlotToCollapse = top.document.getElementById("ad-medrec_content");
+    break;
+
+  case "BOTTOM - LEADERBOARD":
+    adSlotToCollapse = top.document.getElementById("sugarad-s728x90");
+    if(adSlotToCollapse == undefined)
+      adSlotToCollapse = top.document.getElementById("ad-bottom_blade");
+    break;
+
+  case "OTHER - MOBILE":
+    adSlotToCollapse = top.document.getElementById("sugarad-320x50");
+    if(adSlotToCollapse == undefined)
+      adSlotToCollapse = top.document.getElementById("ad-mobile");
+    break;
+
+        case "TOP - MOBILE - MEDREC":
+    adSlotToCollapse = top.document.getElementById("sugarad-300x250-1");
+    break;
+
+        case "BOTTOM - MOBILE - MEDREC":
+    adSlotToCollapse = top.document.getElementById("sugarad-300x250-2");
+    break;
+
+  default:
+    break;
+
+}
+
+function setFifDim(frameElement,w,h) {
+  if (typeof w == 'number' && typeof h == 'number') 
+  {
+    frameElement.style.cssText += ';width:'+w+'px;height:'+h+'px;';
+    frameElement.parentNode.style.cssText = ';width:'+w+'px;height:auto;'+((w == 0 && h == 0) ? 'display:none;' : '');
+                
+                // Collapse the "Advertisement" frame deign on app and m. content pages
+                if(adSlotSize == "TOP - MOBILE - MEDREC" || adSlotSize == "BOTTOM - MOBILE - MEDREC") {
+                    var adContainer = frameElement.parentNode.parentNode;
+                    if(typeof adContainer != "undefined" && adContainer.nodeName == "DIV" && adContainer.className == "ad-container") {
+                        adContainer.style.cssText = ';width:'+w+'px;height:auto;'+((w == 0 && h == 0) ? 'display:none;' : '');
+                    }
+                }
+  }    
+}
+
+function resizeIFrame(adSlotToCollapse, width, height) {
+  // Async
+  if(top != self) 
+  {
+    if(adSlotToCollapse) 
+    {
+      fif=adSlotToCollapse.getElementsByTagName("iframe");
+      if(fif.length) 
+      {
+        setFifDim(fif[0], width, height); // first iframe is the main Ad iframe which spawns the second framebuster iframe (if required)
+      }
+    }
+  }
+}
+
+if( adSlotToCollapse ) {
+    adSlotToCollapse.style.width = widthCollapse+'px';
+    adSlotToCollapse.style.height = heightCollapse+'px';
+    adSlotToCollapse.style.margin = '0px';
+
+    // For Async
+    resizeIFrame(adSlotToCollapse, widthCollapse, heightCollapse);
+}
+</script>

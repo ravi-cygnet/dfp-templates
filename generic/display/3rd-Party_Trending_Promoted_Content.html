@@ -1,0 +1,72 @@
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+
+<!-- PROMOTED TRENDING CONTENT -->
+<ul id="promoted_trendingcontent_1">
+    <li data-id="content-promoted">
+        <div class="trendingcontentthumbnail-placeholder" style="position:relative;">
+            <a href="" target="_blank">
+              <img src="">
+            </a>
+        <span class="video_promotion_waterwark" style="position: absolute; bottom: 4px; left: 0; font-size: 10px; padding: 4px 4px 4px 4px; margin: 1px; color: white; background: rgba(102,104,104,0.55);  -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=90)';filter: alpha(opacity=90);-moz-opacity: 0.9;-khtml-opacity: 0.9;opacity: 0.9;">
+            PROMOTED
+          </span>
+        </div>
+        <div class="trendingcontenttext-placeholder">
+            <a href="" target="_blank"></a>
+        </div>
+        <div style="clear: both;"></div>
+    </li>
+</ul>
+
+<script>
+
+var headlineText = "[%Headline_Text%]";
+var landingURL = "[%3rd_Party_Landing_URL%]";
+var thumbnailImageURL = "[%Thumbnail_Image_URL%]";
+
+// If 3rd-Party Impression url exists, append it to the page
+var impressionTracker = "[%Impression_Tracker_URL%]";
+if(impressionTracker != "") {
+        document.write('<i'+'mg src="'+impressionTracker+'" border="0px" width="1px" height="1px" style="position:absolute;visibility:hidden;top:0px;left:0px;" />');
+}
+
+/**
+* For 3rd Party promoted Trending Content
+*/
+function createPromotedTrendingContentUnit()
+{
+        if(headlineText == "" || landingURL == "" || thumbnailImageURL == "") {
+            return;
+        }
+        
+        // Destination 3rd party URL
+  jQuery('#promoted_trendingcontent_1 .trendingcontentthumbnail-placeholder a').attr("href", "%%CLICK_URL_UNESC%%"+landingURL);
+  jQuery('#promoted_trendingcontent_1 .trendingcontenttext-placeholder a').attr("href", "%%CLICK_URL_UNESC%%"+landingURL);
+      
+  // Image URL
+  jQuery('#promoted_trendingcontent_1 .trendingcontentthumbnail-placeholder a img').attr("src", thumbnailImageURL);
+      
+  // Blogroll headline
+  jQuery('#promoted_trendingcontent_1 .trendingcontenttext-placeholder a').text(headlineText);
+  
+  // -----------------------------------------------
+  // MOVE TO PARENT PAGE
+  // -----------------------------------------------
+      
+  // Add the promoted content into trending content widget
+  jQuery('#widget_TrendingContent_source', window.parent.document).before(jQuery('#promoted_trendingcontent_1')[0]);
+  jQuery('.widget_TrendingContent ul', window.parent.document).css('margin','0');
+
+  // Apply trending content classes to promoted content
+  jQuery('#promoted_trendingcontent_1 .trendingcontentthumbnail-placeholder', window.parent.document).addClass('widget_TrendingContent_thumbnail');
+  jQuery('#promoted_trendingcontent_1 .trendingcontenttext-placeholder', window.parent.document).addClass('widget_TrendingContent_text');
+
+  // Sub header alignment
+  jQuery('.widget_TrendingContent .subHeaderContainer span', window.parent.document).css('padding', '0px 0px');
+  jQuery('.widget_TrendingContent .subHeaderContainer span h2', window.parent.document).css('padding-left', '6px');
+  jQuery('.widget_TrendingContent ul', window.parent.document).css('padding-left','0px');
+}
+
+createPromotedTrendingContentUnit();
+
+</script>

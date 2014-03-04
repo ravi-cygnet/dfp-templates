@@ -1,0 +1,41 @@
+<div id="iFrame-sugarad-6x6">
+</div>
+
+<script>
+// Apply skin
+if (window.top == window.self) {
+       var adContainerDoc = document;
+} else {
+       var adContainerDoc = window.parent.document;
+}
+
+if("[%Skin_URL%]" != "") {
+    adContainerDoc.body.style.background = "url([%Skin_URL%]) top center no-repeat fixed";
+    adContainerDoc.body.style.backgroundColor = "#000000";
+    adContainerDoc.body.style.backgroundPosition = "50% 110px";
+}
+
+function addTracker(impressionTracker) {
+        if(impressionTracker != "") {
+            return '<img src="'+impressionTracker+'" border="0px" width="1px" height="1px" style="position:absolute;visibility:hidden;top:0px;left:0px;" />\n';
+        }
+        
+        return "";
+}
+
+function getTrackingCode() {
+  var trackingCode = "\n";          
+
+  // 3rd Party Impression Tracking
+        trackingCode += addTracker("[%Impression_Tracker_URL_1%]");
+        trackingCode += addTracker("[%Impression_Tracker_URL_2%]");
+  
+  // DFP Impression Tracking
+  trackingCode += addTracker("%%VIEW_URL_UNESC%%http://ads.ign.com/stitial2.0/filler1x1.gif");
+
+  return trackingCode;
+}
+
+var adCode = getTrackingCode();
+document.getElementById("iFrame-sugarad-6x6").innerHTML = adCode;
+</script>

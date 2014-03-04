@@ -1,0 +1,212 @@
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+
+<div id="iframe-ad-interstitial">
+  [%3rd_Party_Tag%]
+</div>
+
+<script type="text/javascript">
+
+if (typeof jQuery === 'undefined' && typeof parent.window !== 'undefined') {
+    jQuery = parent.window.jQuery;
+}
+
+// User entered custom values
+var creativeType = "[%Creative_Type%]";
+var creativeWidth = "[%Creative_Width%]";
+var creativeHeight = "[%Creative_Height%]";
+var backgroundImageURL = "[%BGround_Img_URL%]";
+var smallestWidth = "[%Minimum_Width%]";
+var smallestHeight = "[%Minimum_Height%]";
+var backgroundImageClickThruURL = "%%CLICK_URL_UNESC%%" + "[%BGround_Img_Click_Through_URL%]";
+var backgroundColor = "[%BGround_Color%]";
+var creativeFormat = "[%Creative_Format%]";
+var interstitialDuration = "[%InterstitialTimerDuration%]";
+
+// Browser size
+var browserWidth = window.parent.innerWidth;
+var browserHeight = window.parent.innerHeight;
+
+// Sync / Async values
+var interstitialWindow, interstitialDocument;
+
+jQuery.fn.doesExist = function() {
+    return jQuery(this).length > 0;
+};
+
+function log(arg) {
+    if (interstitialWindow.console) {
+        if (typeof arg === 'object' && interstitialWindow.console.dir) {
+            //interstitialWindow.console.dir(arg);
+        } else {
+            //interstitialWindow.console.log(arg);
+        }
+    }
+}
+
+function addTracker(impressionTracker) {
+    if (impressionTracker !== "") {
+        return '<img src="' + impressionTracker + '" border="0px" width="1px" height="1px" style="position:absolute;visibility:hidden;top:0px;left:0px;" />\n';
+    }
+
+    return "";
+}
+
+function getTrackingCode() {
+
+    var trackingCode = "\n";
+
+    // 3rd Party Impression Tracking
+    trackingCode += addTracker("[%Impression_Tracker_URL_1%]");
+    trackingCode += addTracker("[%Impression_Tracker_URL_2%]");
+    trackingCode += addTracker("[%Impression_Tracker_URL_3%]");
+
+    // DFP Impression Tracking
+    trackingCode += addTracker("%%VIEW_URL_UNESC%%http://ads.ign.com/askmen-interstitial/filler1x1.gif");
+
+    return trackingCode;
+}
+
+function getColorCode(colorName) {
+    switch (colorName) {
+        case 'black':
+            return '#000000';
+            break;
+        case 'white':
+            return '#ffffff';
+            break;
+        default:
+            return '#000000';
+            break;
+    }
+}
+
+function getInterstitialMarkup() {
+    var markup = "";
+
+    markup += "<div id='ad-interstitial-close' onclick='parent.AM.RespAds.dfp.closeInterstitial()'>x</div>";
+    markup += "<div id='ad-interstitial-fuse'>";
+    markup += "<span id='ad-interstitial-fusewire'></span>";
+    markup += "</div>";
+
+    return markup;
+}
+
+// Async / Sync
+interstitialWindow = (window.top !== window.self) ? parent.window : window,
+interstitialDocument = (window.top !== window.self) ? parent.document : document;
+
+// Clear timer to continue holding onto channel animation
+if (typeof interstitialWindow.stitialReturnTimer !== 'undefined') {
+    interstitialWindow.clearInterval(interstitialWindow.stitialReturnTimer);
+}
+
+//----Auto scroll stitial/Welcome Mat to the cached position in previous load----
+var yPosition = 0;
+var timerId = self.setInterval("scrollToView()", 1000);
+
+function scrollToView() {
+    if (window.parent.document.body.pageYOffset)
+        yPosition = window.parent.document.body.pageYOffset;
+    else if (window.parent.document.pageYOffset)
+        yPosition = window.parent.document.pageYOffset;
+    else if (window.parent.pageYOffset)
+        yPosition = window.parent.pageYOffset;
+    else if (window.parent.document.documentElement.pageYOffset)
+        yPosition = window.parent.document.documentElement.pageYOffset;
+    else if (parent.document.body.scrollTop)
+        yPosition = parent.document.body.scrollTop;
+
+    log("Askmen_WM : yPosition = " + yPosition);
+
+    if (yPosition != 0) {
+        jQuery('#ad-interstitial-overlay', window.parent.document).css('top', yPosition + "px");
+    }
+}
+//-------
+
+// If ad being rendered in Async mode
+if (top !== self) {
+
+    // Apply Skin Image/Color & CSS to markup added above
+    if (jQuery('#ad-interstitial-overlay', window.parent.document).doesExist()) {
+
+        var offset, minimumWidth, minimumHeight;
+                        
+        if(smallestWidth !== "" && smallestHeight !== ""){
+            offset = jQuery('#ad-interstitial-overlay', window.parent.document)[0].getBoundingClientRect();
+            //hard-coded for now since it's added after the fact
+            var buffer = 5;
+            minimumWidth = Number(smallestWidth) + offset.left;
+            minimumHeight = Number(smallestHeight) + offset.top + buffer;
+        }
+        else{
+            offset = jQuery('#ad-interstitial-iframe', window.parent.document)[0].getBoundingClientRect();
+            var adHeight = Number(creativeHeight);
+            var adWidth = Number(creativeWidth);
+            minimumWidth = adHeight + offset.top;
+            minimumHeight = adWidth + offset.left;
+        }
+        
+        if (browserHeight >= minimumHeight && browserWidth >= minimumWidth) {
+
+            // Add close and fuse markup to parent page
+            jQuery('#ad-interstitial-overlay', window.parent.document).append(getInterstitialMarkup());
+
+            jQuery('#ad-interstitial-overlay', window.parent.document).css('height', jQuery(interstitialWindow).height() - jQuery('#header', window.parent.document).height());
+
+            if (backgroundImageURL !== "") { // If Image url exists
+
+                if (backgroundImageURL === "http://ads.ign.com/advertisers/uk/1080x810_RL-bg-new.jpg") {
+                    var adformScript = document.createElement('script');
+                    adformScript.type = 'text/javascript';
+                    adformScript.src = "http://ads.ign.com/advertisers/uk/adform-ScriptV4.js";
+                    jQuery("#iframe-ad-interstitial").append(adformScript);
+                }
+
+                jQuery('#ad-interstitial-overlay', window.parent.document).prepend("<a href='' target='_blank'><img id='ad-interstitial-skin' src='' width='100%'></a>");
+
+                jQuery('#ad-interstitial-overlay img', window.parent.document).attr({
+                    src: backgroundImageURL,
+                    width: '100%'
+                });
+
+                if (backgroundImageClickThruURL !== "") {
+                    jQuery('#ad-interstitial-overlay a', window.parent.document).attr('href', backgroundImageClickThruURL);
+                }
+            } else { // if no image then apply color
+                jQuery('#ad-interstitial-overlay', window.parent.document).css('background-color', getColorCode(backgroundColor));
+            }
+
+            // -----------------------------------------------------------------------
+            // For all creatives/tags that get rendered inside iframe
+            // re-size & re-position the iFrame itself instead of pushing the ad out of the iframe onto parent page
+            var styles = {
+                width: '100%',
+                height: '100%'
+            };
+            jQuery('#ad-interstitial-iframe iframe:first', window.parent.document).css(styles);
+            jQuery('#ad-interstitial-iframe div:first', window.parent.document).css(styles);
+
+            // -----------------------------------------------------------------------
+
+            /* Track DFP Impressions */
+            var trackingCode = getTrackingCode();
+            jQuery('#ad-interstitial-overlay', window.parent.document).append(trackingCode);
+        }
+        else{
+            jQuery('#ad-interstitial-overlay', window.parent.document).css('display', 'none');
+            jQuery('#iframe-ad-interstitial').empty();
+        }
+    }
+    else {
+        log("Askmen_WM : id #ad-interstitial-overlay does not exist");
+    }
+
+    // Start Interstitial Fuse animation
+    if (typeof parent.AM !== 'undefined' && typeof parent.AM.RespAds.dfp.startInterstitial === 'function') {
+        var responsiveAd = (creativeFormat === "HTML5") ? "true" : "false";
+        parent.AM.RespAds.dfp.startInterstitial(creativeWidth, creativeHeight, responsiveAd, interstitialDuration);
+    }
+}
+
+</script>

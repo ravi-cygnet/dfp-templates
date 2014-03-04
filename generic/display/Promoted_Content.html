@@ -1,0 +1,344 @@
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+
+
+<!-- MOBILE SPONSORED STORY -->
+<div style="display:none">
+    <li id="sponsored-story" style="background:#FEFFC2">
+        <a href="" style="background:#FEFFC2">
+    <span class="newsfeed_img">
+      <img src="" style="width:160px; height:90px">
+    </span>
+    <span class="newsfeed_text">
+      <h3></h3>
+      <span style="display:block">
+        <span class="li_timeago">
+          <i>
+            Promoted
+          </i>
+        </span>
+      </span>
+    </span>
+        </a>
+    </li>
+</div>
+
+
+<!-- PROMOTED VIDEO -->
+<li id="promoted_video_1" class="video promoted_video" style="border: 3px solid #efefef">
+    <a href="" target="_self" data-video-title="" data-video-description="">
+        <div class="promoted_video_image" id="promotedImage">
+            <img src="" alt="">
+        </div>
+      <span class="video_name">
+        <div id="blogRollHeadline">
+        </div>
+      </span>
+      <span class="video_duration" id="videoDuration">
+      </span>
+            <span class="video_promotion_waterwark" style="position: absolute; top: 0; right: 0; font-size: 10px; padding: 0px 4px; margin: 1px; color: white; background: rgba(102,102,102,0.55); -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=90)';filter: alpha(opacity=90);-moz-opacity: 0.9;-khtml-opacity: 0.9;opacity: 0.9;">
+        PROMOTED
+      </span>
+    </a>
+</li>
+
+
+<!-- PROMOTED TRENDING CONTENT -->
+<ul id="promoted_trendingcontent_1">
+    <li data-id="content-promoted">
+        <div class="trendingcontentthumbnail-placeholder" style="position:relative;">
+            <a href="">
+              <img src="">
+            </a>
+        <span class="video_promotion_waterwark" style="position: absolute; bottom: 4px; left: 0; font-size: 10px; padding: 4px 4px 4px 4px; margin: 1px; color: white; background: rgba(102,104,104,0.55);  -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=90)';filter: alpha(opacity=90);-moz-opacity: 0.9;-khtml-opacity: 0.9;opacity: 0.9;">
+            PROMOTED
+          </span>
+        </div>
+        <div class="trendingcontenttext-placeholder">
+            <a href=""></a>
+        </div>
+        <div style="clear: both;"></div>
+    </li>
+</ul>
+
+
+<script>
+    
+// Example values's
+// Video Id : 6dd71fcb3dda9c7563f8fe0356934ee8
+// Article Id : 51523865402df91d75d8e2f2
+// forceURL : http://www.ign.com/articles/2013/03/26/primal-carnage-genesis-first-screenshots
+
+var contentType = "[%ContentType%]";
+var promotedVideoOrArticleId = "[%ContentID%]";
+var forceURL = "[%ForceClickURL%]";
+
+if(promotedVideoOrArticleId != "") {
+  
+  var APIURL;
+  if(contentType == "Article") {
+    APIURL = "http://apis.ign.com/article/v3/articles/"+promotedVideoOrArticleId+"?"+ Math.floor(Math.random()*12);
+  }else if(contentType == "Video") {
+    APIURL = "http://apis.ign.com/video/v3/videos/"+promotedVideoOrArticleId+"?"+ Math.floor(Math.random()*12);
+  }
+
+  // IE support for JSON cross domain requests 
+  if ($.browser.msie && parseInt($.browser.version, 10) >= 8 && window.XDomainRequest) {
+    // Use Microsoft XDR
+    var xdr = new XDomainRequest();
+    xdr.open("get", APIURL);
+    xdr.onload = function() {
+      json = 'json = '+xdr.responseText; // the string now looks like..  json = { ... };
+      data = eval(json); // json is now a regular JSON object
+      initAdUnits(data); // parse using same function as for jQuery's getjson success event
+    }
+    xdr.send();
+  } 
+  else 
+  {
+    var jqxhr = $.getJSON( APIURL, function(data) {
+      initAdUnits(data);
+    })
+    .fail(function(data) {
+                //console.log( "error" );
+              })
+    .complete(function(data) { 
+                //console.log( "second complete" ); 
+              });
+  }
+}
+
+function initAdUnits(data)
+{
+  if(contentType == "Video") {
+    if(data["videoId"]) {
+      
+      checkAndCreatePromotedVideoContent(0, data);
+      createPromotedTrendingContent(data);
+      createMobileSponsoredStory(data);
+      
+    }
+  }else if(contentType == "Article") {
+    if(data["articleId"]){
+        
+      createPromotedTrendingContent(data);
+      createMobileSponsoredStory(data);
+        
+    }
+  }
+}
+
+
+/**
+* For video promoted content
+*/
+function checkAndCreatePromotedVideoContent(checkingCount, videoData) 
+{
+    checkingCount++;
+
+    // count # of videos in video list
+    var childrenVideos = jQuery( "#videos-list li", window.parent.document).length;
+
+    // Wait for video list items to be added to DOM before adding promoted video item
+    if(childrenVideos > 1) {
+
+    //$videos = jQuery('.video', window.parent.document);
+        //$videos.find('.image-timer').removeClass('image-timer');
+
+        // Video ID of the Media Video Player page content video 
+    contentVideoId = jQuery(".video_component:first-child", window.parent.document).children().attr("data-id");
+      
+        // Insert promoted video at 2nd spot in list Only if the content being played is not the promoted itself
+        if(contentVideoId != promotedVideoOrArticleId) {
+              
+            // If all the required data for promoted content is present in Video API response
+            if(videoData['metadata']['url'] && videoData['metadata']['duration'] && videoData['metadata']['name'] && videoData['thumbnails'][0]['styleUrl']) {
+                
+              // Video URL from API response
+              $("#promoted_video_1 a").attr("href", "%%CLICK_URL_UNESC%%"+videoData.metadata.url);
+              
+              // Video Duration from API response
+              if(videoData['metadata']['duration'] >= 60) {
+                var duration = Math.floor(videoData['metadata']['duration'] / 60);
+                duration += (videoData['metadata']['duration'] % 60 != 0) ? ":"+ ( ((videoData['metadata']['duration'] % 60) >= 10) ? (videoData['metadata']['duration'] % 60) : "0"+(videoData['metadata']['duration'] % 60)) : ":00";
+              }else {
+                duration = videoData['metadata']['duration'];
+              }
+              $("#promoted_video_1 #videoDuration").text(duration);
+              
+              // Blogroll Headline from API response
+              $("#promoted_video_1 #blogRollHeadline").text(videoData['metadata']['name']);
+              $("#promoted_video_1 a").attr("data-video-title", videoData['metadata']['name']);
+              $('#promoted_video_1 #promotedImage img').attr('alt', videoData['metadata']['name']);
+                
+              // Image thumbnail from API response
+              var thumbURL = videoData['thumbnails'][0]['styleUrl'];
+              thumbURL = thumbURL.replace(/{size}/g, "medium");
+              $("#promoted_video_1 #promotedImage img").attr('src', thumbURL);
+
+        // -----------------------------------------------
+        // MOVE TO PARENT PAGE
+        // -----------------------------------------------
+        
+        pNode = jQuery('#videos-list', window.parent.document)[0];
+        sponsoredNode = jQuery('#promoted_video_1')[0];
+        articleItem = jQuery('#videos-list', window.parent.document)[0];
+        if(pNode != null && sponsoredNode != null) {
+                pNode.insertBefore(sponsoredNode,articleItem.childNodes[2]);
+              }
+            }
+        }
+
+        return;
+    }
+
+    // Wait 5 seconds for the video list to be added, and if it doesn't happen, then just give up.
+    // Has to be done this way to avoid adding a callback to the video player page's loading of the list
+    // This allows for minimal dependency on the page code itself
+    if (checkingCount < 5) {
+        setTimeout(function() { checkAndCreatePromotedVideoContent(checkingCount, videoData) },1000);
+    }
+}
+    
+
+/**
+* For promoted Trending Content
+*/
+function createPromotedTrendingContent(data)
+{ 
+  if(contentType == "Article") {
+  
+    if(data['metadata']['state'] == "published") {
+      if(data['metadata']['slug'] && data['promo']['promoImages'][0]['url'] && data['metadata']['headline']) {
+    
+        // -----------------------------------------------
+        // FILL IN HTML DATA FROM ARTICLE API RESPONSE
+        // -----------------------------------------------
+      
+        var date = data['metadata']['publishDate'];
+        date = date.split("T");
+        date = date[0].split("-");
+    
+        // Form this structure : http://www.ign.com/articles/2013/03/26/primal-carnage-genesis-first-screenshots
+        var articleURL = "http://www.ign.com/articles/"+date[0]+"/"+date[1]+"/"+date[2]+"/"+data['metadata']['slug'];
+        jQuery('#promoted_trendingcontent_1 .trendingcontentthumbnail-placeholder a').attr("href", "%%CLICK_URL_UNESC%%"+articleURL);
+        jQuery('#promoted_trendingcontent_1 .trendingcontenttext-placeholder a').attr("href", "%%CLICK_URL_UNESC%%"+articleURL);
+      
+        // Image URL from API response
+        jQuery('#promoted_trendingcontent_1 .trendingcontentthumbnail-placeholder a img').attr("src", data['promo']['promoImages'][0]['url']);
+      
+        // Blogroll headline from API response
+        jQuery('#promoted_trendingcontent_1 .trendingcontenttext-placeholder a').text(data['metadata']['headline']);
+      }
+    }
+  } else if(contentType == "Video") {
+    
+    // -----------------------------------------------
+    // FILL IN HTML DATA FROM VIDEO API RESPONSE
+    // -----------------------------------------------
+    
+    // If all the required data for promoted content is present in Video API response
+        if(data['metadata']['url'] && data['metadata']['name'] && data['thumbnails'][0]['styleUrl']) {
+        
+          // If no force URL: click url is video (default)
+          // If force URL: click url is article url
+          var clickURL = (forceURL != "") ? forceURL : data['metadata']['url']
+          
+            jQuery('#promoted_trendingcontent_1 .trendingcontentthumbnail-placeholder a').attr("href", "%%CLICK_URL_UNESC%%"+clickURL);
+      jQuery('#promoted_trendingcontent_1 .trendingcontenttext-placeholder a').attr("href", "%%CLICK_URL_UNESC%%"+clickURL);
+      
+            // Image thumbnail from API response
+            var thumbURL = data['thumbnails'][0]['styleUrl'];
+            thumbURL = thumbURL.replace(/{size}/g, "medium");
+            jQuery('#promoted_trendingcontent_1 .trendingcontentthumbnail-placeholder a img').attr("src", thumbURL);
+            
+            // Blogroll Headline from API response
+            jQuery('#promoted_trendingcontent_1 .trendingcontenttext-placeholder a').text(data['metadata']['name']);
+        }
+  }
+  
+  // -----------------------------------------------
+  // MOVE TO PARENT PAGE
+  // -----------------------------------------------
+      
+  // Add the promoted content into trending content widget
+  jQuery('#widget_TrendingContent_source', window.parent.document).before(jQuery('#promoted_trendingcontent_1')[0]);
+  jQuery('.widget_TrendingContent ul', window.parent.document).css('margin','0');
+
+  // Apply trending content classes to promoted content
+  jQuery('#promoted_trendingcontent_1 .trendingcontentthumbnail-placeholder', window.parent.document).addClass('widget_TrendingContent_thumbnail');
+  jQuery('#promoted_trendingcontent_1 .trendingcontenttext-placeholder', window.parent.document).addClass('widget_TrendingContent_text');
+
+  // Sub header alignment
+  jQuery('.widget_TrendingContent .subHeaderContainer span', window.parent.document).css('padding', '0px 0px');
+  jQuery('.widget_TrendingContent .subHeaderContainer span h2', window.parent.document).css('padding-left', '6px');
+  jQuery('.widget_TrendingContent ul', window.parent.document).css('padding-left','0px');
+}
+
+/**
+* For mobile promoted content
+*/
+function createMobileSponsoredStory(data) 
+{ //console.log("reached");
+  if(contentType == "Article") {
+    if(data['metadata']['state'] == "published") {
+      if(data['metadata']['slug'] && data['promo']['promoImages'][0]['url'] && data['metadata']['headline']) {
+    
+        // -----------------------------------------------
+        // FILL IN HTML DATA FROM ARTICLE API RESPONSE
+        // -----------------------------------------------
+      
+        var date = data['metadata']['publishDate'];
+        date = date.split("T");
+        date = date[0].split("-");
+    
+        // Form this structure : http://www.ign.com/articles/2013/03/26/primal-carnage-genesis-first-screenshots
+        var articleURL = "http://www.ign.com/articles/"+date[0]+"/"+date[1]+"/"+date[2]+"/"+data['metadata']['slug'];
+        jQuery('#sponsored-story a').attr("href", "%%CLICK_URL_UNESC%%"+articleURL);
+      
+        // Image URL from API response
+        jQuery('#sponsored-story .newsfeed_img img').attr("src", data['promo']['promoImages'][0]['url']);
+        
+        // Blogroll headline from API response
+        jQuery('#sponsored-story .newsfeed_text h3').text(data['metadata']['headline']);
+      }
+    }
+  }else if(contentType == "Video") {
+  
+    jQuery("#sponsored-story .newsfeed_img").append('<span class="video_play_btn"><span></span></span>');
+    // -----------------------------------------------
+    // FILL IN HTML DATA FROM VIDEO API RESPONSE
+    // -----------------------------------------------
+    
+    // If all the required data for promoted content is present in Video API response
+        if(data['metadata']['url'] && data['metadata']['name'] && data['thumbnails'][0]['styleUrl']) {
+        
+          // Video URL from API response
+            jQuery('#sponsored-story a').attr("href", "%%CLICK_URL_UNESC%%"+data['metadata']['url']);
+
+            // Image thumbnail from API response
+            var thumbURL = data['thumbnails'][0]['styleUrl'];
+            thumbURL = thumbURL.replace(/{size}/g, "medium");
+            jQuery('#sponsored-story .newsfeed_img img').attr("src", thumbURL);
+            
+            // Blogroll Headline from API response
+            jQuery('#promoted_trendingcontent_1 .trendingcontenttext-placeholder a').text(data['metadata']['name']);
+            jQuery('#sponsored-story .newsfeed_text h3').text(data['metadata']['name']);
+        }
+  }
+  
+  // -----------------------------------------------
+  // MOVE TO PARENT PAGE
+  // -----------------------------------------------
+      
+  pNode=top.document.getElementById("list_articles");
+
+    if (jQuery(pNode).length > 0) {
+        sponsoredNode=document.getElementById("sponsored-story");
+
+        articleItem = pNode.childNodes;
+
+        pNode.insertBefore(sponsoredNode,articleItem[5]);
+    }
+}
+
+</script>

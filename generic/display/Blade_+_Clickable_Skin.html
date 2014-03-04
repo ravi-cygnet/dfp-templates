@@ -1,0 +1,308 @@
+<script type="text/javascript" src="http://oystatic.ignimgs.com/src/core/js/external/jquery/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="http://ads.ign.com/swfobject/swfobject.js"></script>
+<script type="text/javascript">
+swfobject.registerObject("slot_728x90", "9.0.0");
+
+var creativeWidth = [%Creative_Width%];
+var creativeHeight = [%Creative_Height%];
+var clickableSkinURL = jQuery.trim("[%Clickable_Skin_URL%]");
+var creativeType = "[%Creative_Type%]";
+var localSwfUrl = "[%Local_SWF%]";
+var localJpgUrl = "[%Local_IMAGE%]";
+var clickThroughUrl = "%%CLICK_URL_UNESC%%"+"[%Click_Through_URL%]";
+var localSwfOpacity = "[%Local_SWF_Opacity%]";
+var impUrl1 = "[%Impression_Tracker_URL_1%]";
+var impUrl2 = "[%Impression_Tracker_URL_2%]";
+var impUrl3 = "[%Impression_Tracker_URL_3%]";
+var ignLBContainer = "sugarad-728x90";
+
+var hotspots = [],
+  idPrefix = 'ignSkinHotspot',
+  skinW = 1500, // IGN Skin Width
+  skinH = 1000, // IGN Skin Height
+  contentW = 972, // IGN Shell Width
+  hotspotWindow,
+  hotspotDocument;
+
+var mode = '[%Mode%]';
+
+/* ============== Blade Routines START ============== */
+function addTracker(impressionTracker) {
+    if(impressionTracker != "") {
+        return '<img src="'+impressionTracker+'" border="0px" width="1px" height="1px" style="position:absolute;visibility:hidden;top:0px;left:0px;" />\n';
+    }
+    
+    return "";
+}
+
+function getTrackingCode() {
+
+  var trackingCode = "\n";          
+  
+  // 3rd Party Impression Tracking
+    trackingCode += addTracker("[%Impression_Tracker_URL_1%]");
+    trackingCode += addTracker("[%Impression_Tracker_URL_2%]");
+    trackingCode += addTracker("[%Impression_Tracker_URL_3%]");
+
+  return trackingCode;
+}
+
+function setFifDim(frameElement, w, h) {
+    if (typeof w == 'number' && typeof h == 'number') {
+        frameElement.style.cssText += ';width:' + w + 'px;height:' + h + 'px;';
+        frameElement.parentNode.style.cssText = ';width:' + w + 'px;height:auto;' + ((w == 0 && h == 0) ? 'display:none;' : '');
+    }
+}
+
+function resizeIFrame(lbContainerDiv, creativeWidth, creativeHeight) {
+    // Async
+    if (top != self) {
+        if (top.document.getElementById(lbContainerDiv)) {
+            fif = top.document.getElementById(lbContainerDiv).getElementsByTagName("iframe");
+            if (fif.length) {
+                setFifDim(fif[0], creativeWidth, creativeHeight); // first iframe is the main Ad iframe which spawns the second framebuster iframe (if required)
+            }
+        }
+    }
+}
+
+function generateSwfObject(creativeWidth, creativeHeight, localSwfUrl, clickThroughUrl, localJpgUrl, localSwfOpacity) {
+
+    var swfobjectCode = '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="' + creativeWidth + '" height="' + creativeHeight + '" id="slot_728x90">\n';
+    swfobjectCode += '<param name="movie" value="' + localSwfUrl + '" />\n';
+    swfobjectCode += '<param name="flashvars" value="clickTag='+escape(clickThroughUrl)+'&clickTAG='+escape(clickThroughUrl)+'&clicktag='+escape(clickThroughUrl)+'" />\n';
+    swfobjectCode += '<param name="wmode" value="'+localSwfOpacity+'" />\n';
+    swfobjectCode += '<param name="autostart" value="true" />\n';
+    swfobjectCode += '<param name="quality" value="autohigh" />\n';
+    swfobjectCode += '<param name="allowScriptAccess" value="always" />\n';
+    swfobjectCode += '<!--[if !IE]>-->\n';
+    swfobjectCode += '<object type="application/x-shockwave-flash" data="' + localSwfUrl + '" width="' + creativeWidth + '" height="' + creativeHeight + '">\n';
+    swfobjectCode += '<!--<![endif]-->\n';
+    swfobjectCode += '<param name="flashvars" value="clickTag='+escape(clickThroughUrl)+'&clickTAG='+escape(clickThroughUrl)+'&clicktag='+escape(clickThroughUrl)+'" />\n';
+    swfobjectCode += '<param name="wmode" value="'+localSwfOpacity+'" />\n';
+    swfobjectCode += '<param name="autostart" value="true" />\n';
+    swfobjectCode += '<param name="quality" value="autohigh" />\n';
+    swfobjectCode += '<param name="allowScriptAccess" value="always" />\n';
+    swfobjectCode += generateJpgLink(clickThroughUrl, localJpgUrl);
+    swfobjectCode += '<!--[if !IE]>-->\n';
+    swfobjectCode += '</object>\n';
+    swfobjectCode += '<!--<![endif]-->\n';
+    swfobjectCode += '</object>\n';
+
+    return swfobjectCode;
+}
+
+function generateJpgLink(clickThroughUrl, localJpgUrl) {
+    var jpgLinkCode = '<a href="' + clickThroughUrl + '" target="_blank">\n';
+    jpgLinkCode += '<img src="' + localJpgUrl + '" border="0px" alt="" />\n';
+    jpgLinkCode += '</a>\n';
+    jpgLinkCode += getTrackingCode();
+
+    return jpgLinkCode;
+}
+/* ============== Blade Routines END ============== */
+
+
+
+/* ============== Clickable Skin Routines START ============== */
+function Hotspot (side, width, height, xPos, yPos, clickThru) {
+    if (!(this instanceof arguments.callee)) {
+    return new Hotspot (side, width, height, xPos, yPos, clickThru);
+  }
+        
+    this.hotspot = hotspotDocument.createElement('a');
+  this.hotspot.setAttribute('id', idPrefix + '_' + side + '_' + Math.floor(Math.random() * 2147483648).toString(36));
+  this.hotspot.setAttribute('href', clickThru);
+  this.hotspot.setAttribute('target', '_blank');
+
+  this.side = side;
+  this.xPos = xPos;
+  this.yPos = yPos;
+  this.width = width;
+  this.height = height;
+  this.hotspotStyles = 'width: '+width+'px; height: '+height+'px; top: '+yPos+'px; border: 0; position: fixed; opacity: 0.4;';
+        if(mode === 'Testing')  { 
+          this.hotspotStyles += 'background: blue; opacity: 0.4';
+  } else {
+    this.hotspotStyles += 'opacity: 0.0';
+  }
+    
+  if (typeof this.hotspot.style.cssText !== 'undefined' ) {
+        this.hotspot.style.cssText = this.hotspotStyles;
+    } else {
+        this.hotspot.setAttribute('style', this.hotspotStyles);
+    }
+
+    if(mode === 'Testing')  log('IGN_Hotspot : Created with width='+width+' height='+height+' xPos='+xPos+' yPos='+yPos);
+}
+  
+// Checks if the dimensions and position of hotspot lies on the visible area of the skin
+function validHotspot (side, width, height, xPos, yPos) {
+    if(side === 'Left') {
+      if(xPos >= 0 && (xPos + width) <= (skinW - contentW)/2 && yPos >= 0 && (yPos + height) <= skinH) {
+        return true;
+      }
+    } else if(side === 'Right') {
+      if(xPos >= (skinW - (skinW - contentW)/2) && (xPos + width) <= skinW && yPos >= 0 && (yPos + height) <= skinH) {
+        return true;
+      }
+    }
+    
+    return false;
+}
+    
+var index = -1;
+function addHotspot(side, width, height, xPos, yPos, clickThru) {
+  var bod = hotspotDocument.getElementsByTagName('body')[0];
+  var w = parseInt(width), 
+  h = parseInt(height),
+  x = parseInt(xPos),
+  y = parseInt(yPos);
+    
+  if(validHotspot(side, w, h, x, y)) {
+    hotspots[++index] = new Hotspot(side, w, h, x, y, clickThru);
+    if(typeof bod != 'undefined') { bod.appendChild(hotspots[index].hotspot); }else{ log("body not found");}
+  } else {
+    if(mode === 'Testing')  log('IGN_Hotspot : Invalid hotspot position width='+w+' height='+h+' xPos='+xPos+' yPos='+yPos);
+  }
+}
+  
+function position () {
+    var screenW = screenDim('width'),
+        screenH = screenDim('height');
+        
+    for (var i=0;i<hotspots.length;i++) {
+        if (contentW >= screenW && (hotspots[i].yPos + hotspots[i].height) > screenH) {       // Hotspot not visible
+      hotspots[i].hotspot.style.display = 'none';
+        } else {
+          hotspots[i].hotspot.style.display = 'block';
+          
+          var xPos;
+      if(screenW <= skinW) {
+        xPos = hotspots[i].xPos - (skinW - screenW)/2;
+      }else if(screenW > skinW) {
+        xPos = hotspots[i].xPos + (screenW - skinW)/2;
+      }
+        
+      hotspots[i].hotspot.style.left = xPos + 'px';
+            hotspots[i].hotspot.style.top = hotspots[i].yPos + 'px';
+      }
+    }
+}
+    
+function screenDim (dim) {
+    var n = 0;
+    dim = dim.charAt(0).toUpperCase() + dim.slice(1); // make sure it's uppercase
+        
+    if (hotspotWindow.innerHeight) {
+        n = hotspotWindow['inner' + dim];
+    } else if (hotspotDocument.documentElement && hotspotDocument.documentElement.clientHeight) {
+        n = hotspotDocument.documentElement['client' + dim];
+    } else if (hotspotDocument.body) {
+        n = hotspotDocument.body['client' + dim];
+    }
+    
+    return n;
+}
+    
+function initializeHotspots () {
+    position();
+    hotspotWindow.onresize = function () {
+    position();
+  };
+}
+    
+function log (arg) {
+    if (hotspotWindow.console) {
+        if (typeof arg === 'object' && hotspotWindow.console.dir) {
+            hotspotWindow.console.dir(arg);
+        } else {
+            hotspotWindow.console.log(arg);
+        }
+    }
+}
+/* ============== Clickable Skin Routines END ============== */
+
+
+
+/* ============== Setup Blade START ============== */
+ignLB = jQuery('#' + ignLBContainer, window.parent.document);
+ignDetector = jQuery('.ad_placement #' + ignLBContainer, window.parent.document);
+if(!ignDetector.length) ignDetector = jQuery('.ad-placement #' + ignLBContainer, window.parent.document);
+ignLegacyDetector = jQuery('#LB_Row_Ad #' + ignLBContainer, window.parent.document);
+
+if (ignDetector.length || ignLegacyDetector.length) {
+    ignLB.css({
+        'width' : creativeWidth,
+        'height' : 'auto'
+    });
+
+    // For Async
+    resizeIFrame(ignLBContainer, creativeWidth, creativeHeight);
+    ignLB_legacy = jQuery('#LB_Row', window.parent.document);
+
+    if (ignLB_legacy.length) {
+        ignLB_legacy.css({
+            'width' : 972,
+            'height' : 'auto'
+        });
+
+        jQuery('#LB_Row_Box', window.parent.document).hide();
+        jQuery('#LB_Row_Ad', window.parent.document).css({
+            'width' : 972,
+            'height' : 'auto',
+            'margin-left' : 0
+        });
+
+        if (ignLegacyDetector.length) {
+            jQuery('#LB_Row_Ad', window.parent.document).css({
+                'text-align' : 'center'
+            });
+        }
+    }
+}
+
+if(creativeType == "Local_SWF" && localSwfUrl) {
+    var adCode = generateSwfObject(creativeWidth, creativeHeight, localSwfUrl, clickThroughUrl, localJpgUrl, localSwfOpacity);
+    document.write(adCode);
+} else if(creativeType == "Local_IMAGE" && localJpgUrl) {
+    var adCode = generateJpgLink(clickThroughUrl, localJpgUrl);
+    document.write(adCode);
+} else if(creativeType == "3rd_Party_Tag") {
+    var trackingCode = getTrackingCode();
+    document.write(trackingCode);
+}
+/* ============== Setup Blade END ============== */
+
+
+
+/* ============== Setup Clickable Skin START ============== */
+jQuery(document).ready(function() {
+  hotspotWindow = (window.top != window.self) ? parent.window : window,
+  hotspotDocument = (window.top != window.self) ? parent.document : document;
+  if(mode === 'Testing') log('IGN_Hotspot : '+ (window.top != window.self) ? 'Asynchronous Mode' : 'Synchronous Mode');
+
+  if (clickableSkinURL != '') {
+
+                jQuery('body', hotspotDocument).css('background', 'url(' + clickableSkinURL + ') top center no-repeat fixed');
+                jQuery('body', hotspotDocument).css('background-color', "#000000");
+                if(mode === 'Testing') log('IGN_Hotspot : Skin rendered');
+
+                if('[%Hotspot_1_Position%]' != 'None') {
+                        var hotspot1ClickThru = ('' == '[%Hotspot_1_Click_Through%]') ? '[%Click_Through_URL%]' : '[%Hotspot_1_Click_Through%]';    // If no hotspot 1 click through entered, use blade clickthrough as a fall back
+            addHotspot('[%Hotspot_1_Position%]', '[%Hotspot_1_Width%]', '[%Hotspot_1_Height%]', '[%Hotspot_1_X_Pixels%]', '[%Hotspot_1_Y_Pixels%]', "%%CLICK_URL_UNESC%%"+hotspot1ClickThru);
+                }
+
+                if('[%Hotspot_2_Position%]' != 'None') {
+                        var hotspot2ClickThru = ('' == '[%Hotspot_2_Click_Through%]') ? '[%Click_Through_URL%]' : '[%Hotspot_2_Click_Through%]';    // If no hotspot 2 click through entered, use blade clickthrough as a fall back
+            addHotspot('[%Hotspot_2_Position%]', '[%Hotspot_2_Width%]', '[%Hotspot_2_Height%]', '[%Hotspot_2_X_Pixels%]', '[%Hotspot_2_Y_Pixels%]', '%%CLICK_URL_UNESC%%'+hotspot2ClickThru);
+                }
+
+                // Position the above added hotspots
+    initializeHotspots ();
+  }
+});
+/* ============== Setup Clickable Skin END ============== */
+</script>
+
+[%3rd_Party_Tag%]

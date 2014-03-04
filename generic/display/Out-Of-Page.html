@@ -1,0 +1,255 @@
+<script type="text/javascript" src="http://oystatic.ignimgs.com/src/core/js/external/jquery/jquery-1.6.2.min.js"></script>
+
+<div id="iFrame-stitialV2-creative">
+  [%3rd_Party_Tag%]
+</div>
+
+<script type="text/javascript">
+
+var creativeType = "[%Creative_Type%]"; 
+var creativeWidth = "[%Creative_Width%]";
+var creativeHeight = "[%Creative_Height%]";
+var localSwfUrl = "[%Local_SWF%]";
+var localImageUrl = "[%Local_IMAGE%]";
+var clickThroughUrl = "%%CLICK_URL_UNESC%%"+"[%Click_Through_URL%]";
+var IGNStitialDiv = 'sugarad-1x1';
+
+// Remove scroll bars from iframe AD
+jQuery('body', document).css('margin', '0px');
+jQuery('#stitialV2-creative', window.parent.document).css('width', creativeWidth);
+
+// TODO: Needs deployment to change in page css for the stitialV2 markup, so doing this here for now
+jQuery('#stitialV2-navigation-block', window.parent.document).css('z-index', '100001');
+
+/* START - LOCALLY HOSTED CREATIVES - SWF AND IMAGE */
+
+function addTracker(impressionTracker) {
+        if(impressionTracker != "") {
+            return '<img src="'+impressionTracker+'" border="0px" width="1px" height="1px" style="position:absolute;visibility:hidden;top:0px;left:0px;" />\n';
+        }
+        
+        return "";
+}
+
+function getTrackingCode() {
+
+  var trackingCode = "\n";          
+  
+  // 3rd Party Impression Tracking
+        trackingCode += addTracker("[%Impression_Tracker_URL_1%]");
+        trackingCode += addTracker("[%Impression_Tracker_URL_2%]");
+        trackingCode += addTracker("[%Impression_Tracker_URL_3%]");
+  
+  // DFP Impression Tracking
+  trackingCode += addTracker("%%VIEW_URL_UNESC%%http://ads.ign.com/stitial2.0/filler1x1.gif");
+
+  return trackingCode;
+}
+
+function generateJpgLink(creativeWidth, creativeHeight, localImageUrl, clickThroughUrl) {
+    
+    var imageCode = '<a href="' + clickThroughUrl + '" target="_blank">\n';
+    imageCode += '<img src="' + localImageUrl + '" border="0px" alt="" width="' + creativeWidth + 'px" height="' + creativeHeight + 'px" />\n';
+    imageCode += '</a>\n';
+    imageCode += getTrackingCode();
+
+    return imageCode;
+}
+
+function getFlashVersion() {
+    var v="0,0,0";
+    try{
+        v=new ActiveXObject("ShockwaveFlash.ShockwaveFlash").GetVariable("$version");
+    }catch(e){
+        try{
+            if(navigator.mimeTypes["application/x-shockwave-flash"].enabledPlugin){
+                v=navigator.plugins["Shockwave Flash"].description;
+            }
+        }catch(e){}
+    }
+    return v.replace(/\D+/g, ",").match(/^,?(.+),?$/)[1].split(',').shift();
+}
+
+function generateLocalSwfCode(creativeWidth, creativeHeight, localSwfUrl, localImageUrl, clickThroughUrl) {
+
+  var swfCode = '';
+    if(getFlashVersion()) {
+        swfCode+= '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" id="overlay_12345" width="'+creativeWidth+'" height="'+creativeHeight+'" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=10,0,0,0">';
+        swfCode+= '<param name="movie" value="'+localSwfUrl+'" />';
+        swfCode+= '<param name="flashvars" value="clickTag='+escape(clickThroughUrl)+'&clickTAG='+escape(clickThroughUrl)+'&clicktag='+escape(clickThroughUrl)+'" />';
+        swfCode+= '<param name="wmode" value="opaque" />';
+        swfCode+= '<param name="autostart" value="true" />';
+        swfCode+= '<param name="quality" value="autohigh" />';
+        swfCode+= '<param name="allowScriptAccess" value="always" />';
+        swfCode+= '<embed wmode="opaque" src="'+localSwfUrl+'" flashvars="clickTag='+escape(clickThroughUrl)+'&clickTAG='+escape(clickThroughUrl)+'&clicktag='+escape(clickThroughUrl)+'" swLiveConnect="true" width="'+creativeWidth+'" height="'+creativeHeight+'" type="application/x-shockwave-flash" quality="autohigh" allowScriptAccess="always">';
+        swfCode+= '<\/embed>';
+        swfCode+= '<\/object>';
+        swfCode+= getTrackingCode();
+    } else {
+        swfCode+= generateJpgLink(creativeWidth, creativeHeight, localImageUrl, clickThroughUrl);
+    }
+
+    return swfCode;
+}
+
+var adCode = "";
+if(creativeType == "Local_SWF" && "" !== localSwfUrl) {
+    adCode = generateLocalSwfCode(creativeWidth, creativeHeight, localSwfUrl, localImageUrl, clickThroughUrl);
+}
+else if(creativeType == "Local_IMAGE" && "" !== localImageUrl) {
+    adCode = generateJpgLink(creativeWidth, creativeHeight, localImageUrl, clickThroughUrl);
+}
+
+// Page has the stitialV2-creative DIV onload
+if( jQuery('#stitialV2-creative', window.parent.document).length && adCode !== "") {
+    top.document.getElementById("stitialV2-creative").innerHTML = adCode;
+
+    // Adding User interaction function list to parent page
+    var fileref=document.createElement('script')
+    fileref.setAttribute("type","text/javascript")
+    fileref.setAttribute("src", "http://o.ads.ign.com/js/megastitial.js")
+    if (typeof fileref!="undefined") {
+        top.document.getElementById("stitialV2-creative").appendChild(fileref)
+    }
+
+    if(typeof parent.SugarAds !== 'undefined') {
+        parent.SugarAds.dfp._stitialShow();
+    }
+}
+
+/* END - LOCALLY HOSTED CREATIVES - SWF AND IMAGE */
+
+
+
+
+
+/* START - 3RD PARTY CREATIVES - TAGS */
+var stitialShown = false;
+
+function moveFromSugarDivToStitialV2Div()
+{
+    if(jQuery('#'+IGNStitialDiv + ' div', window.parent.document).length) {
+    top.document.getElementById("stitialV2-creative").innerHTML =      stripiFrames(top.document.getElementById(IGNStitialDiv).innerHTML);
+    
+                jQuery('#'+IGNStitialDiv, window.parent.document).css('display', 'none');
+    self.clearInterval(moveFromSugarDivToStitialV2DivTimer);
+    
+    if(typeof parent.SugarAds !== 'undefined' && !stitialShown) {
+                  parent.SugarAds.dfp._stitialShow();
+              }
+  }
+}
+
+//----Auto scroll stitial/Welcome Mat to the cached position in previous load----
+var yPosition = 0;
+var timerId = self.setInterval("scrollToView()", 1000);
+function scrollToView(){
+    if(window.parent.document.body.pageYOffset)
+        yPosition = window.parent.document.body.pageYOffset;
+    else if(window.parent.document.pageYOffset)
+        yPosition = window.parent.document.pageYOffset;
+    else if(window.parent.pageYOffset)
+        yPosition = window.parent.pageYOffset;
+    else if(window.parent.document.documentElement.pageYOffset)
+        yPosition = window.parent.document.documentElement.pageYOffset;
+    else if(parent.document.body.scrollTop)
+        yPosition = parent.document.body.scrollTop;
+  
+        // Inside iFrame - All vendors Except pointroll/unicast
+        jQuery('#'+IGNStitialDiv, window.parent.document).css('top', yPosition + 150 + "px");
+
+        // In sugarad-1x1
+  jQuery('#stitialV2-navigation-block', window.parent.document).css('top', yPosition + 36 + "px");
+  jQuery('#stitialV2-fuse', window.parent.document).css('top', yPosition + 72 + "px");
+  jQuery('#stitialV2-overlay', window.parent.document).css('top', yPosition + 77 + "px");
+  jQuery('#stitialV2-wrapper', window.parent.document).css('top', yPosition + 150 + "px");
+}
+//-------
+
+// If Parent page stitialV2 markup exists
+if(jQuery('#stitialV2-creative', window.parent.document).length && creativeType == "3rd_Party_Tag") {    
+
+  // Stitial is in an iFrame, Append the creative to the parent
+  try{
+                        /* ----------------- AD RENDERED WITHIN IFRAME - IFRAME REPOSITIONED -------------------------- */    
+                
+                        // All vendors Except pointroll/unicast place creative inside iFrame-stitialV2-creative div
+      if(jQuery('#iFrame-stitialV2-creative', document).length) {
+        
+        // -----------------------------------------------------------------------
+        // For MediaMind/all creatives that get rendered inside iframe : Tag Execution
+                                // re-position the iFrame itself instead of pushing the ad out of the iframe onto parent page
+        // Resize iFrame Ad
+        jQuery('#'+IGNStitialDiv +' iframe', window.parent.document).css('width', creativeWidth+'px');
+        jQuery('#'+IGNStitialDiv +' iframe', window.parent.document).css('height', creativeHeight+'px');
+        
+        // Set sugarad-1x1 to be 100% width 
+                                // since this cannot be added through class to override #sugarad-1x1 ID width property
+        jQuery('#'+IGNStitialDiv, window.parent.document).css('width', '100%');
+        
+        // Set the new positions for sugarad and iframe ad
+        jQuery('#'+IGNStitialDiv, window.parent.document).addClass("iFrameStitialContainer");
+        jQuery('#'+IGNStitialDiv +' iframe', window.parent.document).addClass('iFrameStitialAd');
+        // -----------------------------------------------------------------------
+        
+        // Show Stitial
+        if(typeof parent.SugarAds !== 'undefined' && !stitialShown) {
+                      parent.SugarAds.dfp._stitialShow();
+                                        stitialShown = true;
+                  }
+      }
+      /* ------------------------------------------------------------------------------------------------------ */
+
+
+      /* -----AD RENDERED WITHIN SUGARAD-1x1 PARENT DIV - MOVED TO STITIAL'S RIGHT POSITION --------- */
+      
+                        var moveFromSugarDivToStitialV2DivTimer = self.setInterval("moveFromSugarDivToStitialV2Div()",200);
+                        setTimeout(function(){self.clearInterval(moveFromSugarDivToStitialV2DivTimer);},4000);
+                        
+                        /* ------------------------------------------------------------------------------------------------------ */
+
+                        /* Track DFP Impressions */
+                        var trackingCode = getTrackingCode();
+                        jQuery('#'+IGNStitialDiv, window.parent.document).prepend(trackingCode);
+
+  }
+  catch(e) {  
+  } // can not escape iframe, do not show ad
+}
+
+
+// Block StitialV2 and render page ads - Just refresh ad slots
+if(creativeType == 'Block') {
+        // No need to show Stitial, just refresh page ads
+  if(typeof parent.SugarAds !== 'undefined') {
+                parent.SugarAds.dfp._refreshRemainingAdSlots();
+      }
+}
+
+// Remove script tags within the Ad Container before adding it to parent page
+function stripScripts(s) {
+    var div = document.createElement('div');
+    div.innerHTML = s;
+    var scripts = div.getElementsByTagName('script');
+    var i = scripts.length;
+    while (i--) {
+            scripts[i].parentNode.removeChild(scripts[i]);
+    }
+    return div.innerHTML;
+}
+
+// Remove script tags within the Ad Container before adding it to parent page
+function stripiFrames(s) {
+    var div = document.createElement('div');
+    div.innerHTML = s;
+    var iframes = div.getElementsByTagName('iframe');
+    var i = iframes.length;
+    while (i--) {
+            iframes[i].parentNode.removeChild(iframes[i]);
+    }
+    return div.innerHTML;
+}
+
+/* END - 3RD PARTY CREATIVES - TAGS */
+
+</script>

@@ -1,0 +1,179 @@
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+
+<div id="iFrame-creative">
+  [%3rd_Party_Tag%]
+</div>
+
+<script>
+action = "[%Action%]";
+adSlotName = "[%Ad_Slot%]";
+newAdWidth = ("[%Action%]" == "Collapse") ? "0" : "[%New_Width%]";
+newAdHeight = ("[%Action%]" == "Collapse") ? "0" : "[%New_Height%]";
+
+// Creative details
+var creativeType = "[%Creative_Type%]";
+var localSwfUrl = "[%Local_SWF%]";
+var localImageUrl = "[%Local_IMAGE%]";
+var clickThroughUrl = "%%CLICK_URL_UNESC%%"+"[%Click_Through_URL%]";
+
+if(typeof jQuery == 'undefined' && typeof parent.window != 'undefined') {
+        jQuery = parent.window.jQuery;
+}
+
+function getElementToTakeActionOn() {
+         
+  switch (adSlotName) {
+
+    case 'Top_Leaderboard':
+      adSlot = jQuery('.ad-billboard', window.parent.document);
+      break;
+
+    case 'Top_Medrec':
+      adSlot = jQuery('.ad-medrec', window.parent.document);
+      break;
+
+    case 'Bottom_Leaderboard':
+      adSlot = jQuery('.ad-blade', window.parent.document);
+      break;
+                
+                case 'Mobile_Banner':
+                        adSlot = jQuery('.ad-mobile', window.parent.document);
+                        break;
+
+    default:
+      adSlot = null;
+      break;
+  }
+
+  // Check for Element validity
+  if(adSlot && adSlot.length > 0) {
+    return adSlot[0];
+  } else {
+    return undefined;
+  }
+}
+
+function setFifDim(frameElement,w,h) {
+  if (typeof w != 'undefined' && typeof h != 'undefined') 
+  {
+                // Just resize friendly-iframe
+    frameElement.style.cssText += ';width:'+w+'px;height:'+h+'px;';
+    
+                // Resize container Div
+                //frameElement.parentNode.style.cssText = ';width:'+w+'px;height:auto;'+((w == 0 && h == 0) ? 'display:none;' : '');
+  }
+}
+
+function resizeIFrame(actionElement, width, height) {
+  // Async
+  if(top != self)
+  {
+    if(typeof actionElement != 'undefined') 
+    {
+      fif=actionElement.getElementsByTagName("iframe");
+      if(fif.length) 
+      {
+        // first iframe is the main Ad iframe which spawns the second framebuster iframe (if required)
+        setFifDim(fif[0], width, height);
+      }
+    }
+  }
+}
+
+function logmsg(msg) {
+        if (window.console){
+                window.console.log('[Askmen resize/collapse template] : '+msg);
+        }
+}
+
+// Get action element
+actionElement = getElementToTakeActionOn();
+
+
+// Perform action
+resizeIFrame(actionElement, newAdWidth, newAdHeight);
+
+/* START - LOCALLY HOSTED CREATIVES - SWF AND IMAGE */
+
+function addTracker(impressionTracker) {
+        if(impressionTracker != "") {
+            return '<img src="'+impressionTracker+'" border="0px" width="1px" height="1px" style="position:absolute;visibility:hidden;top:0px;left:0px;" />\n';
+        }
+        
+        return "";
+}
+
+function getTrackingCode() {
+
+  var trackingCode = "\n";          
+  
+  // 3rd Party Impression Tracking
+        trackingCode += addTracker("[%Impression_Tracker_URL_1%]");
+        trackingCode += addTracker("[%Impression_Tracker_URL_2%]");
+        trackingCode += addTracker("[%Impression_Tracker_URL_3%]");
+  
+  // DFP Impression Tracking
+  trackingCode += addTracker("%%VIEW_URL_UNESC%%http://ads.ign.com/stitial2.0/filler1x1.gif");
+
+  return trackingCode;
+}
+
+function generateJpgLink(creativeWidth, creativeHeight, localImageUrl, clickThroughUrl) {
+    
+    var imageCode = '<a href="' + clickThroughUrl + '" target="_blank">\n';
+    imageCode += '<img src="' + localImageUrl + '" border="0px" alt="" width="' + creativeWidth + 'px" height="' + creativeHeight + 'px" />\n';
+    imageCode += '</a>\n';
+    imageCode += getTrackingCode();
+
+    return imageCode;
+}
+
+function getFlashVersion() {
+    var v="0,0,0";
+    try{
+        v=new ActiveXObject("ShockwaveFlash.ShockwaveFlash").GetVariable("$version");
+    }catch(e){
+        try{
+            if(navigator.mimeTypes["application/x-shockwave-flash"].enabledPlugin){
+                v=navigator.plugins["Shockwave Flash"].description;
+            }
+        }catch(e){}
+    }
+    return v.replace(/\D+/g, ",").match(/^,?(.+),?$/)[1].split(',').shift();
+}
+
+function generateLocalSwfCode(creativeWidth, creativeHeight, localSwfUrl, localImageUrl, clickThroughUrl) {
+
+  var swfCode = '';
+    if(getFlashVersion()) {
+        swfCode+= '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" id="overlay_12345" width="'+creativeWidth+'" height="'+creativeHeight+'" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=10,0,0,0">';
+        swfCode+= '<param name="movie" value="'+localSwfUrl+'" />';
+        swfCode+= '<param name="flashvars" value="clickTag='+escape(clickThroughUrl)+'&clickTAG='+escape(clickThroughUrl)+'&clicktag='+escape(clickThroughUrl)+'" />';
+        swfCode+= '<param name="wmode" value="opaque" />';
+        swfCode+= '<param name="autostart" value="true" />';
+        swfCode+= '<param name="quality" value="autohigh" />';
+        swfCode+= '<param name="allowScriptAccess" value="always" />';
+        swfCode+= '<embed wmode="opaque" src="'+localSwfUrl+'" flashvars="clickTag='+escape(clickThroughUrl)+'&clickTAG='+escape(clickThroughUrl)+'&clicktag='+escape(clickThroughUrl)+'" swLiveConnect="true" width="'+creativeWidth+'" height="'+creativeHeight+'" type="application/x-shockwave-flash" quality="autohigh" allowScriptAccess="always">';
+        swfCode+= '<\/embed>';
+        swfCode+= '<\/object>';
+        swfCode+= getTrackingCode();
+    } else {
+        swfCode+= generateJpgLink(creativeWidth, creativeHeight, localImageUrl, clickThroughUrl);
+    }
+
+    return swfCode;
+}
+
+var adCode = "";
+if(creativeType == "Local_SWF" && "" !== localSwfUrl) {
+    adCode = generateLocalSwfCode(newAdWidth, newAdHeight, localSwfUrl, localImageUrl, clickThroughUrl);
+
+    document.write(adCode);
+}
+else if(creativeType == "Local_IMAGE" && "" !== localImageUrl) {
+    adCode = generateJpgLink(newAdWidth, newAdHeight, localImageUrl, clickThroughUrl);
+
+    document.write(adCode);
+}
+</script>

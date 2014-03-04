@@ -1,0 +1,138 @@
+<script type="text/javascript">
+ 
+// Resize variables 
+adSlotSize = "sugarad-300x250"; 
+width = "[%NewWidth%]"; 
+height = "[%NewHeight%]";
+
+// Creative type variables
+var cType = "[%CreativeType%]"; 
+var lSwfUrl = "[%LocallyHostedSWFURL%]";
+var swfClkUrl = "%%CLICK_URL_ESC_ESC%%"+"[%SWFClickURL%]";
+var bupImgUrl = "[%BackupImageURL%]";
+var bupImgClkUrl = "%%CLICK_URL_UNESC%%"+"[%BackupImageClickURL%]";
+var lJpgUrl = "[%LocallyHostedJPGImageURL%]";
+var jpgClkUrl = "%%CLICK_URL_UNESC%%"+"[%JPGImageClickURL%]";
+var flashVersion = "10";
+var impUrl1 = "[%3rdPartyImpressionURL1%]";
+var impUrl2 = "[%3rdPartyImpressionURL2%]";
+
+function setFifDim(frameElement,w,h) {
+  frameElement.style.cssText += ';height:'+h+'px;min-height:'+h+'px;';
+  frameElement.parentNode.style.cssText = ';height:'+h+'px;min-height:'+h+'px;'+((w == 0 && h == 0) ? 'display:none;' : '');
+}
+
+function resizeIFrame(mrContainerDiv, width, height) {
+  // Async
+  if(top != self) 
+  {
+    if(top.document.getElementById(mrContainerDiv)) 
+    {
+      fif=top.document.getElementById(mrContainerDiv).getElementsByTagName("iframe");
+      if(fif.length) 
+      {
+        setFifDim(fif[0], width, height); // first iframe is the main Ad iframe which spawns the second framebuster iframe (if required)
+      }
+    }
+  }
+}
+
+// For Async
+resizeIFrame(adSlotSize, width, height);
+
+function getFlashVersion(){
+  var v="0,0,0";
+  try{
+    v=new ActiveXObject("ShockwaveFlash.ShockwaveFlash").GetVariable("$version");
+  }catch(e){
+    try{
+        if(navigator.mimeTypes["application/x-shockwave-flash"].enabledPlugin){
+          v=navigator.plugins["Shockwave Flash"].description;
+        }
+      }catch(e){}
+  }
+  return v.replace(/\D+/g, ",").match(/^,?(.+),?$/)[1].split(',').shift();
+}
+
+function generateJpgImgTag(imgUrl, clickUrl, width, height, target)
+{
+  var tag = "";
+  if (arguments.length == 2)
+  {
+    tag += "<a href=\"" + clickUrl + "\" target=\"_blank\">";
+    tag += "<img src=\"" + imgUrl + "\" border=\"0px\" />";
+    tag += "</a>";
+  }
+  else if (arguments.length == 3)
+  {
+    tag += "<a href=\"" + clickUrl + "\" target=\"" + arguments[2] + "\">";
+    tag += "<img src=\"" + imgUrl + "\" border=\"0px\" />";
+    tag += "</a>";
+  }
+  else if (arguments.length == 4)
+  {
+    tag += "<a href=\"" + clickUrl + "\" target=\"_blank\">";
+    tag += "<img src=\"" + imgUrl + "\" border=\"0px\" width=\"" + width + "px\" height=\"" + height +"px\" />";
+    tag += "</a>";
+  }
+        else if (arguments.length == 5)
+  {
+    tag += "<a href=\"" + clickUrl + "\" target=\"" + target + "\">";
+    tag += "<img src=\"" + imgUrl + "\" border=\"0px\" width=\"" + width + "px\" height=\"" + height +"px\" />";
+    tag += "</a>";
+  }
+  else
+    throw new Error("Invalid argument list");
+    
+  return tag;
+}
+
+function generateLocalSwfCode(creativeWidth, creativeHeight, swfUrl, swfClickUrl, imgUrl, imgClickUrl, target, wmode )
+{
+  var backupTag = generateJpgImgTag(imgUrl, imgClickUrl, creativeWidth, creativeHeight, target);
+
+  if(getFlashVersion())
+  {
+    adcode = '';
+    adcode+= '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" id="overlay_12345" width="'+creativeWidth+'" height="'+creativeHeight+'" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=10,0,0,0">';
+    adcode+= '<param name="movie" value="'+swfUrl+'" />';
+    adcode+= '<param name="flashvars" value="clickTag='+escape(swfClickUrl)+'&clickTAG='+escape(swfClickUrl)+'&clicktag='+escape(swfClickUrl)+'" />';
+    adcode+= '<param name="wmode" value="'+wmode+'" />';
+    adcode+= '<param name="autostart" value="true" />';
+    adcode+= '<param name="quality" value="autohigh" />';
+    adcode+= '<param name="allowScriptAccess" value="always" />';
+    adcode+= '<embed wmode="'+wmode+'" src="'+swfUrl+'" flashvars="clickTag='+escape(swfClickUrl)+'&clickTAG='+escape(swfClickUrl)+'&clicktag='+escape(swfClickUrl)+'" swLiveConnect="true" width="'+creativeWidth+'" height="'+creativeHeight+'" type="application/x-shockwave-flash" quality="autohigh" allowScriptAccess="always">';
+    adcode+= '<\/embed>';
+    adcode+= '<\/object>';
+  }else{
+    adcode+= backupTag; 
+  }
+
+  return adcode;
+}
+
+if(cType == "Locally Hosted SWF" && lSwfUrl)
+{
+  // If Locally hosted SWF URL exists, create a swf object and embed it onto the page
+     
+  var swfCode = generateLocalSwfCode(width, height, lSwfUrl, swfClkUrl, bupImgUrl, bupImgClkUrl, "_blank", "opaque");
+  
+        document.write(swfCode);
+}
+else if(cType == "Locally Hosted JPG" && lJpgUrl)
+{
+  // If Locally hosted JPG URL exists, create an img and append it onto the page
+
+  tag = generateJpgImgTag(lJpgUrl, jpgClkUrl, width, height);
+
+  document.write(tag);
+}
+
+// If 3rd-Party Impression url exists, append it to the page
+if(impUrl1 != "") document.write('<i'+'mg src="'+impUrl1+'" border="0px" width="1px" height="1px" style="position:absolute;visibility:hidden;top:0px;left:0px;" />') 
+
+if(impUrl2 != "") document.write('<i'+'mg src="'+impUrl2+'" border="0px" width="1px" height="1px" style="position:absolute;visibility:hidden;top:0px;left:0px;" />') 
+
+</script>
+
+[%3rdPartyAdTag%]
