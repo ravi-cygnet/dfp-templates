@@ -1,24 +1,28 @@
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-
 <!-- MOBILE SPONSORED STORY -->
 <div style="display:none">
-    <li id="sponsored-story" style="background:#F8F8FF">
-        <a href="" target="_blank">
-    <span class="newsfeed_img">
-      <img src="" style="width:150px; height:90px">
-    </span>
-    <span class="newsfeed_text">
-      <h3></h3>
-      <span style="display:block">
-        <span class="li_timeago">
-          <i>
-            Promoted
-          </i>
-        </span>
-      </span>
-    </span>
+    <li id="sponsored-story" class="list-article" style="background: #e3e3e3;">
+        <a href="" target="_blank" style="">
+		<span class="newsfeed_img">
+			<img src="" style="width:121px; height:92px;">
+		</span>
+		<span class="newsfeed_text">
+			<h3></h3>
+			<span style="display:block">
+				<span class="li_timeago">Promoted</span>
+			</span>
+		</span>
         </a>
-    </li>
+        <div class="promoted-link"></div>
+        <style type="text/css">
+            #sponsored-story { background: #e3e3e3; }
+                #sponsored-story > a { background:#e3e3e3; margin: 0 0 2px 9px; }
+                #sponsored-story .newsfeed_text { font-size:12px; max-width:140px; padding:10px; }
+                #sponsored-story .newsfeed_text > h3 { min-height:56px; }
+                #sponsored-story .promoted-link {  position: absolute; /* background: url(""); */ height: 50px; width: 56px; top: 0; z-index: 10000; right: 0; }
+                #sponsored-story .newsfeed_text .li_timeago { padding:0; }
+        </style>
+        </li>
 </div>
 
 <script>
@@ -34,27 +38,27 @@ if(impressionTracker != "") {
 */
 function createMobileSponsoredStory()
 {
-  if("[%3rd_Party_Landing_URL%]" && "[%Image_URL%]" && "[%Story_Headline%]") {
-  
-    // -----------------------------------------------
-    // FILL IN STORY DATA FROM ARTICLE API RESPONSE
-    // -----------------------------------------------
-    
-    // 3rd-Party Landing page URL
-    jQuery('#sponsored-story a').attr("href", "%%CLICK_URL_UNESC%%"+"[%3rd_Party_Landing_URL%]");
-      
-    // Image URL from API response
-    jQuery('#sponsored-story .newsfeed_img img').attr("src", "[%Image_URL%]");
+	if("[%3rd_Party_Landing_URL%]" && "[%Image_URL%]" && "[%Story_Headline%]") {
+	
+		// -----------------------------------------------
+		// FILL IN STORY DATA FROM ARTICLE API RESPONSE
+		// -----------------------------------------------
+		
+		// 3rd-Party Landing page URL
+		jQuery('#sponsored-story a').attr("href", "%%CLICK_URL_UNESC%%"+"[%3rd_Party_Landing_URL%]");
+			
+		// Image URL from API response
+		jQuery('#sponsored-story .newsfeed_img img').attr("src", "[%Image_URL%]");
 
-    // Blogroll headline from API response
-    jQuery('#sponsored-story .newsfeed_text h3').text("[%Story_Headline%]");
-  }
-  
-  // -----------------------------------------------
-  // MOVE TO PARENT PAGE
-  // -----------------------------------------------
-      
-  pNode=top.document.getElementById("list_articles");
+		// Blogroll headline from API response
+		jQuery('#sponsored-story .newsfeed_text h3').text("[%Story_Headline%]");
+	}
+	
+	// -----------------------------------------------
+	// MOVE TO PARENT PAGE
+	// -----------------------------------------------
+			
+	pNode=top.document.getElementById("list_articles");
 
         if (jQuery(pNode).length > 0) {
                 sponsoredNode=document.getElementById("sponsored-story");
